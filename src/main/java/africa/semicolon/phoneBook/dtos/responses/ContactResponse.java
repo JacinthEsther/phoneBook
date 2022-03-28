@@ -1,6 +1,5 @@
 package africa.semicolon.phoneBook.dtos.responses;
 
-import africa.semicolon.phoneBook.dtos.Requests.ContactRequest;
 import lombok.Data;
 
 @Data

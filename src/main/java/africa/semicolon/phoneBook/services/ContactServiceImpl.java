@@ -2,25 +2,30 @@ package africa.semicolon.phoneBook.services;
 
 import africa.semicolon.phoneBook.data.data.model.Contact;
 import africa.semicolon.phoneBook.data.data.repositories.ContactRepository;
-import africa.semicolon.phoneBook.data.data.repositories.ContactRepositoryImpl;
-import africa.semicolon.phoneBook.dtos.Requests.ContactRequest;
+//import africa.semicolon.phoneBook.data.data.repositories.ContactRepositoryImpl;
+import africa.semicolon.phoneBook.dtos.requests.ContactRequest;
 import africa.semicolon.phoneBook.dtos.responses.ContactResponse;
+import africa.semicolon.phoneBook.exceptions.InvalidContactException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+@Service
 public class ContactServiceImpl implements ContactService {
 
-
-    private ContactRepository contactRepository = new ContactRepositoryImpl();
-
+//    private ContactRepository contactRepository = new ContactRepositoryImpl();
+    @Autowired
+    private ContactRepository contactRepository;
 
     @Override
     public ContactResponse register(ContactRequest contact) {
 
         Contact addContact = new Contact(contact.getName(),contact.getPhoneNumber());
 
-        Contact savedContact =contactRepository.saveContact(addContact);
+        Contact savedContact =contactRepository.save(addContact);
         ContactResponse response = new ContactResponse();
         response.setFullName(savedContact.getFullName());
         response.setPhoneNumber(savedContact.getMobile());
@@ -32,24 +37,30 @@ public class ContactServiceImpl implements ContactService {
         return contactRepository;
     }
 
+//    private List<Contact> findContactsByFirstNameOrLastName(String name){
+//        List <Contact> contacts = new ArrayList<>();
+//        contacts.addAll(contactRepository.findConta(name));
+//        return contacts;
+//    }
+
     @Override
-    public ContactResponse findContact(String name) {
-        Contact contact = contactRepository.searchContactByName(name);
-       ContactResponse response = new ContactResponse();
-    response.setFullName(contact.getFullName());
-    response.setPhoneNumber(contact.getMobile());
-    return response;
+    public List<ContactResponse> findContact(String name) {
+        name = name.toLowerCase();
+      List  <Contact> contacts = contactRepository.findContactsByFirstNameOrLastName(name);
+      if (contacts.isEmpty())throw new InvalidContactException(name + "not found");
+      List<ContactResponse> responses = new ArrayList<>();
+      contacts.forEach(contact ->{
+         ContactResponse response =  new ContactResponse();
+         response.setFullName(contact.getFullName());
+         response.setPhoneNumber(contact.getMobile());
+      });
+      return responses;
     }
 
     @Override
     public void deleteContact(ContactRequest contact) {
         Contact addContact = new Contact(contact.getName(),contact.getPhoneNumber());
-      Contact deleteContact=  contactRepository.deleteContact(addContact);
-
-        ContactResponse response = new ContactResponse();
-
-        response.setFullName(deleteContact.getFullName());
-        response.setPhoneNumber(deleteContact.getMobile());
+        contactRepository.delete(addContact);
     }
 
     @Override

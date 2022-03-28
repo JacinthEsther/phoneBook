@@ -2,13 +2,20 @@ package africa.semicolon.phoneBook.data.data.model;
 
 
 import africa.semicolon.phoneBook.exceptions.InvalidContactException;
+import com.mongodb.lang.NonNull;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Objects;
 
 @Data
-public class Contact {
 
+@EqualsAndHashCode
+@Document("Contacts")
+public class Contact {
+    @Id
+    private String id;
     private String fullName;
     private String mobile;
     private String office;
